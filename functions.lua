@@ -1,20 +1,3 @@
--- Print contents of `tbl`, with indentation.
--- `indent` sets the initial level of indentation.
-function tprint (tbl, indent)
-	if not indent then indent = 0 end
-	for k, v in pairs(tbl) do
-		formatting = string.rep("  ", indent)..k..": "
-		if type(v) == "table" then
-			print(formatting)
-			tprint(v, indent+1)
-		elseif type(v) == 'boolean' then
-			print(formatting..tostring(v))
-		else
-			print(formatting..v)
-		end
-	end
-end
-
 function savestate()
 	local x=''
 	for i, act in ipairs(led) do
@@ -32,20 +15,18 @@ function fwrite(fn, d, t)
 	if(d~=nil and fn~=nil) then
 		if (t==nil) or (t=="a" and file.exists(fn)==false) then
 			t='w+'
---			print("Crea/Sovrascrivi file: "..t)
 		end
 
 		if file.open(fn, t)~=nil then
 			if file.write(d)~=nil then
---print("file scritto correttamente: "..fn)
 				file.close()
 				return true
 			else
-				print("Errore scrittura file: "..fn)
+				print("Error writing file: "..fn)
 				return false
 			end
 		else
-			print("Errore apertura file: "..fn)
+			print("Error opening file: "..fn)
 			return false
 		end
 	else
@@ -55,7 +36,7 @@ end
 
 function Sendfile(sck, fn, sentCallback, d)
 	if not file.open(fn, "r") then
-		print('File HTML non trovato: '..fn)
+		print('File not found: '..fn)
 		if sentCallback then
 			sentCallback()
 		else
