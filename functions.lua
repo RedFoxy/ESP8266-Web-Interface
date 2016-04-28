@@ -60,3 +60,15 @@ function openTemplate(sck, fn, sentCallback)
 	end
 	sendChunk()
 end
+
+function tes(text, sentCallback)
+	chunk = 512
+	if string.len(text) > chunk then
+		sck:send(string.sub(text, 1, chunk), tes(string.sub(text, chunk)))
+	else
+		print(text)
+	end
+end
+	
+
+end
