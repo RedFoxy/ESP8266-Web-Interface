@@ -34,7 +34,7 @@ function fwrite(fn, d, t)
 	end
 end
 
-function Sendfile(sck, fn, sentCallback, d)
+function openTemplate(sck, fn, sentCallback)
 	if not file.open(fn, "r") then
 		print('File not found: '..fn)
 		if sentCallback then
@@ -50,9 +50,6 @@ function Sendfile(sck, fn, sentCallback, d)
 			sck:send(line, sendChunk) 
 		else
 			file.close()
-			if d==true then
-				file.remove(fn)
-			end
 			collectgarbage()
 			if sentCallback then
 				sentCallback()

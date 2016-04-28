@@ -39,6 +39,7 @@ srv=net.createServer(net.TCP)
 
 srv:listen(80,function(conn)
 	conn:on("receive", function(sck,request)
+		local clientip, clientport = sck:getpeer()
 		local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP");
 		if(method == nil)then
 			_, _, method, path = string.find(request, "([A-Z]+) (.+) HTTP");
@@ -51,9 +52,9 @@ srv:listen(80,function(conn)
 		end
 
 		if vars~=nil then
-			print("Path: "..path.." - Vars: "..vars)
+			print(clientip.." - Path: "..path.." - Vars: "..vars)
 		else
-			print("Path: "..path)
+			print(clientip.." - Path: "..path)
 		end
 
 		if (vars~=nil) then
@@ -67,9 +68,7 @@ srv:listen(80,function(conn)
 			for i, act in ipairs(led) do
 				ff = ff..'"'..i..'": '..act.status..', '
 			end
-				sck:send("HTTP/1.1 200 OK\r\n"..
-					"Server: NodeMCU on ESP8266\r\n"..
-					"Content-Type: text/html; charset=UTF-8\r\n\r\n"..
+				sck:send(cfg.web.ok200..
 					string.sub(ff,1,-3)..'}')
 			sck:close()
 
@@ -78,12 +77,9 @@ srv:listen(80,function(conn)
 				gpio.write(led[id]['pin'], gpio.HIGH)
 				led[id]['status'] = 1
 				savestate()
-				sck:send("HTTP/1.1 200 OK\r\n"..
-					"Server: NodeMCU on ESP8266\r\n"..
-					"Content-Type: text/html; charset=UTF-8\r\n\r\n"..
-					'{"status": "success", "value": '..led[id]['status']..'}')
+				sck:send(cfg.web.ok200..'{"status": "success", "value": '..led[id]['status']..'}')
 			else
-				sck:send('{"status": "error", "msg": "id pin not valid"}')
+				sck:send(cfg.web.ok200..'{"status": "error", "msg": "id pin not valid"}')
 			end
 			sck:close()
 
@@ -92,12 +88,9 @@ srv:listen(80,function(conn)
 				gpio.write(led[id]['pin'], gpio.LOW)
 				led[id]['status'] = 0
 				savestate()
-				sck:send("HTTP/1.1 200 OK\r\n"..
-					"Server: NodeMCU on ESP8266\r\n"..
-					"Content-Type: text/html; charset=UTF-8\r\n\r\n"..
-					'{"status": "success", "value": '..led[id]['status']..'}')
+				sck:send(cfg.web.ok200..'{"status": "success", "value": '..led[id]['status']..'}')
 			else
-				sck:send('{"status": "error", "msg": "id pin not valid"}')
+				sck:send(cfg.web.ok200..'{"status": "error", "msg": "id pin not valid"}')
 			end
 			sck:close()
 
@@ -111,20 +104,17 @@ srv:listen(80,function(conn)
 					led[id]['status'] = 1
 				end
 				savestate()
-				sck:send("HTTP/1.1 200 OK\r\n"..
-					"Server: NodeMCU on ESP8266\r\n"..
-					"Content-Type: text/html; charset=UTF-8\r\n\r\n"..
-					'{"status": "success", "value": '..led[id]['status']..'}')
+				sck:send(cfg.web.ok200..'{"status": "success", "value": '..led[id]['status']..'}')
 			else
-				sck:send('{"status": "error", "msg": "id pin not valid"}')
+				sck:send(cfg.web.ok200..'{"status": "error", "msg": "id pin not valid"}')
 			end
 			sck:close()
 
-		elseif path == '/' then
+		elseif path == '/' or path == '/wifi' or path == '/pref' then
 			dofile('dashboard.lua')
 			dashboard(sck)
 		else
-			sck:send("HTTP/1.1 404 file not found")
+			sck:send(cfg.web.ko404)
 			sck:close();
 		end
 		collectgarbage();

@@ -57,17 +57,15 @@ function dashboard(sck)
 	'</div>\n'
 	, 'a')
 
-	sck:send("HTTP/1.1 200 OK\r\n"..
-		"Server: NodeMCU on ESP8266\r\n"..
-		"Content-Type: text/html; charset=UTF-8\r\n\r\n", 
-		function()
-			Sendfile(sck, "sbadmin1.lua",
-			function()
-				Sendfile(sck, page_name,
-				function()
-					Sendfile(sck, "sbadmin2.lua")
-			end, true)
-		end)
-	end)
+	sck:send(cfg.web.ok200,
+		function () openTemplate(sck, "sbadmin1.lua",
+			function () openTemplate(sck, page_name,
+				function () openTemplate(sck, "sbadmin_b.lua",
+					function () openTemplate(sck, "sbadmin2.lua")end
+				)end
+			)end
+		)end
+	)
+	file.remove('page_name')
 --	sck:close()
 end
