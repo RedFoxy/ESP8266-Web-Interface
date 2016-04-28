@@ -66,6 +66,6 @@ function dashboard(sck)
 			)end
 		)end
 	)
-	file.remove('page_name')
+	file.remove(page_name)
 --	sck:close()
 end
